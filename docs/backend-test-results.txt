@@ -1,0 +1,55 @@
+PASS Health connects to MySQL
+PASS Authentication required
+PASS Registration returns a token
+PASS Duplicate email rejected
+PASS Wrong password rejected
+PASS Login succeeds
+PASS Duplicate offline retry has same id
+PASS User reads only own workouts
+PASS Other user cannot read workout
+PASS Other user cannot edit workout
+PASS Other user cannot delete workout
+PASS Zero duration rejected
+PASS Fractional duration rejected
+PASS Invalid location rejected
+PASS Invalid date rejected
+PASS Invalid activity rejected
+PASS Editing own workout succeeds
+PASS Goal progress calculated from database
+PASS Goal dates validated
+PASS Other user cannot delete goal
+PASS Weightlifting stores sets reps and load
+PASS Deleting own goal succeeds
+PASS Deleting own workout succeeds
+PASS Logout revokes token
+PASS Revoked token cannot access data
+{
+  "passed": 25,
+  "tests": [
+    "Health connects to MySQL",
+    "Authentication required",
+    "Registration returns a token",
+    "Duplicate email rejected",
+    "Wrong password rejected",
+    "Login succeeds",
+    "Duplicate offline retry has same id",
+    "User reads only own workouts",
+    "Other user cannot read workout",
+    "Other user cannot edit workout",
+    "Other user cannot delete workout",
+    "Zero duration rejected",
+    "Fractional duration rejected",
+    "Invalid location rejected",
+    "Invalid date rejected",
+    "Invalid activity rejected",
+    "Editing own workout succeeds",
+    "Goal progress calculated from database",
+    "Goal dates validated",
+    "Other user cannot delete goal",
+    "Weightlifting stores sets reps and load",
+    "Deleting own goal succeeds",
+    "Deleting own workout succeeds",
+    "Logout revokes token",
+    "Revoked token cannot access data"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "android_build": "assembleDebug passed",
+  "jvm_tests_passed": 5,
+  "api_tests_passed": 25,
+  "lint": "lintDebug passed; see report for warnings",
+  "lint_errors": 0,
+  "lint_warnings": 35,
+  "device_execution": "Not performed successfully; user requested files first",
+  "screenshots": "Not captured",
+  "apk_sha256": "69b7609504640e93fd962a6364af3f4b3ad6cf853f14514419d24fe30ee14fd7"
+}

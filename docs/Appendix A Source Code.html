@@ -1,0 +1,997 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Fitness Tracker Source Code Appendix</title><style>
+body{font:16px/1.65 system-ui,sans-serif;color:#182e27;background:#f6f8f3;margin:0}main{max-width:1050px;padding:48px 28px;margin:auto}h1{font-size:38px;line-height:1.2}h2{font-size:20px;overflow-wrap:anywhere;margin-top:48px}p{max-width:760px}nav{columns:2;margin:28px 0}nav a{display:block;font-size:13px;color:#176b51;overflow-wrap:anywhere;margin-bottom:8px}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:white;border:1px solid #d9d9d9;padding:20px;color:#152c23;font:12px/1.65 Consolas,monospace;tab-size:4}small{color:#53675f} @media print{body{background:white}main{max-width:none;padding:0}nav{display:none}h2{break-after:avoid}pre{font-size:8pt;border:0;padding:0}section{break-before:page}h1{font-size:24pt}}@media(max-width:600px){nav{columns:1}pre{font-size:11px;padding:12px}}</style><main><small>MOBILE APP DEVELOPMENT</small><h1>Appendix A Source Code</h1><p>This appendix lists the implementation source. The complete project also contains the build wrapper, setup instructions and tests. Files are listed by project-relative path. Device screenshots are to be captured separately after the application is run.</p><p>Three inheritance examples: shared BaseActivity, the Workout model hierarchy, and the RecyclerView adapter/view holder. See the OOP guide for how these classes are used.</p><nav><a href="#file0">app/build.gradle.kts</a><a href="#file1">app/src/debug/res/xml/network_security_config.xml</a><a href="#file2">app/src/main/AndroidManifest.xml</a><a href="#file3">app/src/main/java/com/ncc/fitnesstracker/AddWorkoutActivity.kt</a><a href="#file4">app/src/main/java/com/ncc/fitnesstracker/AuthActivity.kt</a><a href="#file5">app/src/main/java/com/ncc/fitnesstracker/BaseActivity.kt</a><a href="#file6">app/src/main/java/com/ncc/fitnesstracker/Data.kt</a><a href="#file7">app/src/main/java/com/ncc/fitnesstracker/MainActivity.kt</a><a href="#file8">app/src/main/java/com/ncc/fitnesstracker/WeeklyChart.kt</a><a href="#file9">app/src/main/java/com/ncc/fitnesstracker/WorkoutAdapter.kt</a><a href="#file10">app/src/main/java/com/ncc/fitnesstracker/WorkoutModels.kt</a><a href="#file11">app/src/main/res/drawable/ic_add.xml</a><a href="#file12">app/src/main/res/drawable/ic_fitness.xml</a><a href="#file13">app/src/main/res/layout/activity_add_workout.xml</a><a href="#file14">app/src/main/res/layout/activity_main.xml</a><a href="#file15">app/src/main/res/layout/item_workout.xml</a><a href="#file16">app/src/main/res/values-v27/styles.xml</a><a href="#file17">app/src/main/res/values/ids.xml</a><a href="#file18">app/src/main/res/values/strings.xml</a><a href="#file19">app/src/main/res/values/styles.xml</a><a href="#file20">app/src/main/res/xml/data_extraction_rules.xml</a><a href="#file21">app/src/main/res/xml/network_security_config.xml</a><a href="#file22">app/src/test/java/com/ncc/fitnesstracker/WorkoutTest.kt</a><a href="#file23">backend/bootstrap.php</a><a href="#file24">backend/config.example.php</a><a href="#file25">backend/fitness_db.sql</a><a href="#file26">backend/public/index.php</a><a href="#file27">build.gradle.kts</a><a href="#file28">settings.gradle.kts</a></nav><section id="file0"><h2>app/build.gradle.kts</h2><pre><code>plugins { id(&quot;com.android.application&quot;); id(&quot;org.jetbrains.kotlin.android&quot;) }
+android {
+    namespace = &quot;com.ncc.fitnesstracker&quot;
+    compileSdk = 35
+    buildToolsVersion = &quot;36.0.0&quot;
+    defaultConfig {
+        applicationId = &quot;com.ncc.fitnesstracker&quot;
+        minSdk = 24
+        targetSdk = 35
+        versionCode = 1
+        versionName = &quot;1.0&quot;
+        testInstrumentationRunner = &quot;androidx.test.runner.AndroidJUnitRunner&quot;
+    }
+    buildFeatures { buildConfig = true }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+        isCoreLibraryDesugaringEnabled = true
+    }
+    kotlinOptions { jvmTarget = &quot;17&quot; }
+}
+dependencies {
+    implementation(&quot;androidx.core:core-ktx:1.15.0&quot;)
+    implementation(&quot;androidx.appcompat:appcompat:1.7.0&quot;)
+    implementation(&quot;com.google.android.material:material:1.12.0&quot;)
+    implementation(&quot;androidx.constraintlayout:constraintlayout:2.2.1&quot;)
+    implementation(&quot;androidx.recyclerview:recyclerview:1.4.0&quot;)
+    implementation(&quot;com.android.volley:volley:1.2.1&quot;)
+    implementation(&quot;com.google.android.gms:play-services-location:21.3.0&quot;)
+    coreLibraryDesugaring(&quot;com.android.tools:desugar_jdk_libs:2.1.5&quot;)
+    testImplementation(&quot;junit:junit:4.13.2&quot;)
+}
+</code></pre></section><section id="file1"><h2>app/src/debug/res/xml/network_security_config.xml</h2><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;network-security-config&gt;
+    &lt;base-config cleartextTrafficPermitted=&quot;false&quot; /&gt;
+    &lt;domain-config cleartextTrafficPermitted=&quot;true&quot;&gt;
+        &lt;domain includeSubdomains=&quot;false&quot;&gt;10.0.2.2&lt;/domain&gt;
+        &lt;domain includeSubdomains=&quot;false&quot;&gt;127.0.0.1&lt;/domain&gt;
+        &lt;domain includeSubdomains=&quot;false&quot;&gt;localhost&lt;/domain&gt;
+    &lt;/domain-config&gt;
+&lt;/network-security-config&gt;
+</code></pre></section><section id="file2"><h2>app/src/main/AndroidManifest.xml</h2><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;&gt;
+    &lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_NETWORK_STATE&quot; /&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_COARSE_LOCATION&quot; /&gt;
+    &lt;uses-permission android:name=&quot;android.permission.ACCESS_FINE_LOCATION&quot; /&gt;
+    &lt;application android:allowBackup=&quot;false&quot; android:fullBackupContent=&quot;false&quot; android:dataExtractionRules=&quot;@xml/data_extraction_rules&quot; android:label=&quot;@string/app_name&quot;
+        android:icon=&quot;@drawable/ic_fitness&quot; android:theme=&quot;@style/Theme.FitnessTracker&quot;
+        android:networkSecurityConfig=&quot;@xml/network_security_config&quot; android:supportsRtl=&quot;true&quot;&gt;
+        &lt;activity android:name=&quot;.AddWorkoutActivity&quot; android:exported=&quot;false&quot; android:windowSoftInputMode=&quot;adjustResize&quot; /&gt;
+        &lt;activity android:name=&quot;.MainActivity&quot; android:exported=&quot;false&quot; /&gt;
+        &lt;activity android:name=&quot;.AuthActivity&quot; android:exported=&quot;true&quot; android:windowSoftInputMode=&quot;adjustResize&quot;&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+&lt;/manifest&gt;
+</code></pre></section><section id="file3"><h2>app/src/main/java/com/ncc/fitnesstracker/AddWorkoutActivity.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.Manifest
+import android.app.DatePickerDialog
+import android.content.pm.PackageManager
+import android.os.Bundle
+import android.text.InputType
+import android.view.View
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
+import com.google.android.gms.tasks.CancellationTokenSource
+import com.google.android.material.textfield.TextInputEditText
+import org.json.JSONObject
+import java.time.LocalDate
+import java.util.UUID
+
+class AddWorkoutActivity:BaseActivity() {
+    private var lat:Double?=null;private var lon:Double?=null
+    private var date=LocalDate.now()
+    private var clientId=UUID.randomUUID().toString()
+    private var source:JSONObject?=null
+    private lateinit var locationLabel:TextView
+    private var locationToken:CancellationTokenSource?=null
+    private val locationPermission=registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) {result-&gt;
+        if(result.values.any {it})captureLocation() else locationLabel.text=&quot;Permission declined. You can still save your workout without a location.&quot;
+    }
+    override fun onCreate(savedInstanceState:Bundle?) {
+        super.onCreate(savedInstanceState);if(!requireSession())return
+        source=intent.getStringExtra(&quot;workout&quot;)?.let {JSONObject(it)}
+        clientId=savedInstanceState?.getString(&quot;clientId&quot;) ?: source?.optString(&quot;client_id&quot;) ?: clientId
+        date=LocalDate.parse(savedInstanceState?.getString(&quot;date&quot;) ?: source?.optString(&quot;date&quot;) ?: date.toString())
+        if(savedInstanceState!=null) {
+            if(savedInstanceState.containsKey(&quot;latitude&quot;)){lat=savedInstanceState.getDouble(&quot;latitude&quot;);lon=savedInstanceState.getDouble(&quot;longitude&quot;)}
+        } else if(source!=null &amp;&amp; !source!!.isNull(&quot;latitude&quot;)){lat=source!!.getDouble(&quot;latitude&quot;);lon=source!!.getDouble(&quot;longitude&quot;)}
+        setContentView(R.layout.activity_add_workout)
+        val form=findViewById&lt;LinearLayout&gt;(R.id.workoutForm)
+        form.addView(button(&quot;Back to your activity&quot;){finish()})
+        form.addView(label(if(source==null) &quot;Make it count.&quot; else &quot;Update your workout&quot;,30f,true))
+        form.addView(label(&quot;Record the details of your session.&quot;,16f))
+        form.addView(label(&quot;Activity&quot;,14f,true))
+        val types=listOf(&quot;Running&quot;,&quot;Cycling&quot;,&quot;Weightlifting&quot;,&quot;Walking&quot;)
+        val type=Spinner(this).apply {id=R.id.workout_activity;adapter=ArrayAdapter(this@AddWorkoutActivity,android.R.layout.simple_spinner_dropdown_item,types)}
+        form.addView(type,LinearLayout.LayoutParams(-1,dp(56)))
+        val duration=field(form,&quot;Duration (minutes)&quot;,InputType.TYPE_CLASS_NUMBER).apply {id=R.id.workout_duration}
+        val distance=field(form,&quot;Distance (km)&quot;,InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL).apply {id=R.id.workout_distance}
+        val weight=field(form,&quot;Weight per repetition (kg)&quot;,InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL).apply {id=R.id.workout_weight}
+        val sets=field(form,&quot;Sets&quot;,InputType.TYPE_CLASS_NUMBER).apply {id=R.id.workout_sets}
+        val reps=field(form,&quot;Repetitions per set&quot;,InputType.TYPE_CLASS_NUMBER).apply {id=R.id.workout_reps}
+        fun wrapper(v:View)=v.parent.parent as View
+        fun fields(){val strength=type.selectedItem.toString()==&quot;Weightlifting&quot;;wrapper(distance).visibility=if(strength)View.GONE else View.VISIBLE;listOf(weight,sets,reps).forEach{wrapper(it).visibility=if(strength)View.VISIBLE else View.GONE}}
+        type.onItemSelectedListener=object:AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent:AdapterView&lt;*&gt;?,view:View?,position:Int,id:Long){fields()}
+            override fun onNothingSelected(parent:AdapterView&lt;*&gt;?){}
+        }
+        source?.let {row-&gt;
+            type.setSelection(types.indexOf(row.getString(&quot;type&quot;)))
+            mapOf(&quot;duration&quot; to duration,&quot;distance&quot; to distance,&quot;weight&quot; to weight,&quot;sets&quot; to sets,&quot;reps&quot; to reps).forEach{(key,edit)-&gt;if(!row.isNull(key))edit.setText(row.optString(key))}
+        };fields()
+        val dateButton=button(&quot;Workout date: $date&quot;) {}
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d-&gt;date=LocalDate.of(y,m+1,d);dateButton.text=&quot;Workout date: $date&quot;},date.year,date.monthValue-1,date.dayOfMonth).apply {datePicker.maxDate=System.currentTimeMillis()}.show()}
+        form.addView(dateButton)
+        locationLabel=label(if(lat==null) &quot;No location attached. This is optional.&quot; else &quot;Location attached: $lat, $lon&quot;,13f);form.addView(locationLabel)
+        form.addView(button(&quot;Attach current location&quot;) {
+            val coarse=ContextCompat.checkSelfPermission(this,Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED
+            if(coarse)captureLocation() else locationPermission.launch(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION))
+        })
+        form.addView(button(&quot;Remove location&quot;) {lat=null;lon=null;locationLabel.text=&quot;No location attached. This is optional.&quot;})
+        val notes=field(form,&quot;Notes (optional)&quot;).apply {id=R.id.workout_notes;setText(source?.optString(&quot;notes&quot;)?:&quot;&quot;);setSingleLine(false);maxLines=4;filters=arrayOf(android.text.InputFilter.LengthFilter(500))}
+        val save=button(if(source==null) &quot;Save workout&quot; else &quot;Save changes&quot;) {}
+        save.setOnClickListener {
+            fun number(edit:TextInputEditText,min:Double,max:Double,integer:Boolean=false):Double? {
+                val value=edit.text.toString().toDoubleOrNull()
+                if(value==null || !value.isFinite() || value&lt;min || value&gt;max || (integer &amp;&amp; value%1!=0.0)){edit.error=&quot;Enter ${if(integer) &quot;a whole number&quot; else &quot;a number&quot;} from $min to $max&quot;;edit.requestFocus();return null}
+                return value
+            }
+            if(notes.text.toString().trim().toByteArray(Charsets.UTF_8).size&gt;500){notes.error=&quot;Shorten your notes to 500 UTF-8 bytes&quot;;return@setOnClickListener}
+            val mins=number(duration,1.0,1440.0,true)?.toInt() ?: return@setOnClickListener
+            val row=JSONObject().put(&quot;id&quot;,source?.optLong(&quot;id&quot;)?:0).put(&quot;client_id&quot;,clientId).put(&quot;type&quot;,type.selectedItem.toString()).put(&quot;duration&quot;,mins).put(&quot;date&quot;,date.toString()).put(&quot;notes&quot;,notes.text.toString().trim())
+            if(date&gt;LocalDate.now()){message(&quot;Choose today or a past date&quot;);return@setOnClickListener}
+            if(type.selectedItem.toString()==&quot;Weightlifting&quot;) {
+                row.put(&quot;weight&quot;,number(weight,0.01,99999.0)?:return@setOnClickListener)
+                row.put(&quot;sets&quot;,number(sets,1.0,1000.0,true)?.toInt()?:return@setOnClickListener)
+                row.put(&quot;reps&quot;,number(reps,1.0,1000.0,true)?.toInt()?:return@setOnClickListener)
+            } else row.put(&quot;distance&quot;,number(distance,0.01,99999.0)?:return@setOnClickListener)
+            row.put(&quot;latitude&quot;,lat?:JSONObject.NULL).put(&quot;longitude&quot;,lon?:JSONObject.NULL)
+            save.isEnabled=false
+            if(source==null) {store.queue(row);message(&quot;Workout saved on this device. Syncing when connected.&quot;);finish()}
+            else api.call(&quot;save_workout&quot;,row,{message(&quot;Workout updated&quot;);finish()},{save.isEnabled=true;apiFailure(it)})
+        }
+        form.addView(save,LinearLayout.LayoutParams(-1,dp(58)))
+        form.addView(label(&quot;New workouts can be recorded offline after signing in. Editing and deleting saved workouts requires a connection.&quot;,12f))
+    }
+    @Suppress(&quot;MissingPermission&quot;)
+    private fun captureLocation() {
+        locationToken?.cancel();locationToken=CancellationTokenSource()
+        locationLabel.text=&quot;Finding your location…&quot;
+        LocationServices.getFusedLocationProviderClient(this).getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY,locationToken!!.token)
+            .addOnSuccessListener {location-&gt;
+                if(location==null)locationLabel.text=&quot;Location unavailable. Check device location settings, then retry.&quot;
+                else {lat=location.latitude;lon=location.longitude;locationLabel.text=&quot;Location attached: ${String.format(java.util.Locale.US,&quot;%.5f, %.5f&quot;,lat,lon)} (accuracy ${location.accuracy.toInt()} m)&quot;}
+            }.addOnFailureListener {locationLabel.text=&quot;Couldn&#x27;t get a location. You can save without it.&quot;}
+    }
+    override fun onSaveInstanceState(outState:Bundle) {
+        outState.putString(&quot;date&quot;,date.toString());outState.putString(&quot;clientId&quot;,clientId)
+        lat?.let{outState.putDouble(&quot;latitude&quot;,it);outState.putDouble(&quot;longitude&quot;,lon!!)}
+        super.onSaveInstanceState(outState)
+    }
+    override fun onDestroy(){locationToken?.cancel();super.onDestroy()}
+}
+</code></pre></section><section id="file4"><h2>app/src/main/java/com/ncc/fitnesstracker/AuthActivity.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.text.InputType
+import android.widget.LinearLayout
+import android.widget.ScrollView
+import android.widget.TextView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputLayout
+import org.json.JSONObject
+
+class AuthActivity : BaseActivity() {
+    private var registering = false
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (store.token.isNotEmpty()) { openDashboard(); return }
+        registering=savedInstanceState?.getBoolean(&quot;registering&quot;) ?: false
+        draw()
+    }
+    override fun onSaveInstanceState(outState: Bundle) { outState.putBoolean(&quot;registering&quot;,registering);super.onSaveInstanceState(outState) }
+    private fun openDashboard() { startActivity(Intent(this,MainActivity::class.java));finish() }
+    private fun draw() {
+        val content = LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(dp(28),dp(36),dp(28),dp(24)) }
+        val scroll=ScrollView(this).apply { isFillViewport=true;addView(content) };setContentView(scroll)
+        content.addView(label(&quot;FITNESS TRACKER&quot;,14f,true).apply { setTextColor(getColor(R.color.green));letterSpacing=.15f })
+        content.addView(label(if(registering) &quot;Your next chapter\nstarts here.&quot; else &quot;Small steps.\nStronger you.&quot;,36f,true))
+        content.addView(label(if(registering) &quot;Create an account to keep your workouts and goals together.&quot; else &quot;Log your movement, follow your progress, and make every session count.&quot;,16f))
+        content.addView(label(if(registering) &quot;Create your account&quot; else &quot;Welcome back&quot;,23f,true))
+        val name = if(registering) field(content,&quot;Full name&quot;) else null
+        name?.id=R.id.auth_name
+        val email=field(content,&quot;Email address&quot;,InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS).apply { id=R.id.auth_email }
+        val password=field(content,&quot;Password&quot;,InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD).apply { id=R.id.auth_password }
+        (password.parent.parent as? TextInputLayout)?.endIconMode=TextInputLayout.END_ICON_PASSWORD_TOGGLE
+        val error=label(&quot;&quot;,14f).apply { setTextColor(0xffa32929.toInt()) };content.addView(error)
+        val submit=button(if(registering) &quot;Create account&quot; else &quot;Sign in&quot;) {}
+        submit.setOnClickListener {
+            val e=email.text.toString().trim();val p=password.text.toString()
+            when {
+                registering &amp;&amp; name!!.text.toString().trim().isEmpty() -&gt; name.error=&quot;Enter your name&quot;
+                !android.util.Patterns.EMAIL_ADDRESS.matcher(e).matches() -&gt; email.error=&quot;Enter a valid email&quot;
+                p.toByteArray().size !in 8..72 -&gt; password.error=&quot;Use 8 to 72 bytes (at least 8 ASCII characters)&quot;
+                else -&gt; {
+                    submit.isEnabled=false;error.text=&quot;Connecting…&quot;
+                    val data=JSONObject().put(&quot;email&quot;,e).put(&quot;password&quot;,p)
+                    if(registering)data.put(&quot;name&quot;,name!!.text.toString().trim())
+                    api.call(if(registering) &quot;register&quot; else &quot;login&quot;,data,{store.signedIn(it);openDashboard()}, {
+                        submit.isEnabled=true;error.text=it.message
+                    })
+                }
+            }
+        }
+        content.addView(submit,LinearLayout.LayoutParams(-1,dp(58)))
+        content.addView(button(if(registering) &quot;Already registered? Sign in&quot; else &quot;New here? Create an account&quot;) { registering=!registering;draw() })
+        content.addView(button(&quot;Server connection&quot;) { configureServer() })
+        content.addView(label(&quot;Your workout history belongs to your account. Location is optional and requested only when you attach it.&quot;,12f))
+    }
+    private fun configureServer() {
+        val form=LinearLayout(this).apply { orientation=LinearLayout.VERTICAL;setPadding(dp(24),dp(8),dp(24),0) }
+        val address=field(form,&quot;Server base URL&quot;,InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_URI).apply { setText(store.server) }
+        form.addView(label(&quot;Android emulator: http://10.0.2.2:8088\nUSB device with adb reverse: http://127.0.0.1:8088\nHosted server: use HTTPS.&quot;,13f))
+        val dialog=MaterialAlertDialogBuilder(this).setTitle(&quot;Server connection&quot;).setView(form).setNegativeButton(&quot;Cancel&quot;,null).setPositiveButton(&quot;Save&quot;,null).create()
+        dialog.setOnShowListener {dialog.getButton(-1).setOnClickListener {
+            val raw=address.text.toString().trim().trimEnd(&#x27;/&#x27;);val uri=Uri.parse(raw)
+            val local=BuildConfig.DEBUG &amp;&amp; uri.scheme==&quot;http&quot; &amp;&amp; uri.host in listOf(&quot;10.0.2.2&quot;,&quot;127.0.0.1&quot;,&quot;localhost&quot;)
+            if(uri.host.isNullOrBlank() || (uri.scheme!=&quot;https&quot; &amp;&amp; !local) || uri.query!=null || uri.fragment!=null || uri.userInfo!=null) address.error=&quot;Use HTTPS, or a supported local debug address&quot;
+            else {store.server=raw;dialog.dismiss();message(&quot;Server address saved&quot;)}
+        }};dialog.show()
+    }
+}
+</code></pre></section><section id="file5"><h2>app/src/main/java/com/ncc/fitnesstracker/BaseActivity.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
+import android.os.Bundle
+import android.view.View
+import android.widget.LinearLayout
+import android.widget.TextView
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
+
+/** Inherited by all screens: shared session checks, insets, controls and navigation. */
+open class BaseActivity : AppCompatActivity() {
+    protected lateinit var store: Store
+    protected lateinit var api: Api
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState); store = Store(this); api = Api(this)
+    }
+    override fun setContentView(view: View?) { super.setContentView(view); view?.let { applyInsets(it) } }
+    override fun setContentView(layoutResID: Int) {
+        super.setContentView(layoutResID)
+        applyInsets(findViewById&lt;android.view.ViewGroup&gt;(android.R.id.content).getChildAt(0))
+    }
+    private fun applyInsets(view: View) {
+        val l = view.paddingLeft; val t = view.paddingTop; val r = view.paddingRight; val b = view.paddingBottom
+        ViewCompat.setOnApplyWindowInsetsListener(view) { v, insets -&gt;
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars() or WindowInsetsCompat.Type.ime())
+            v.setPadding(l + bars.left, t + bars.top, r + bars.right, b + bars.bottom); insets
+        }
+    }
+    protected fun dp(value: Int) = (value * resources.displayMetrics.density).toInt()
+    protected fun message(text: String) = Toast.makeText(this, text, Toast.LENGTH_LONG).show()
+    protected fun requireSession(): Boolean {
+        if (store.token.isNotEmpty()) return true
+        startActivity(Intent(this, AuthActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)); finish(); return false
+    }
+    protected fun apiFailure(error: ApiError) {
+        if (error.status == 401) { store.token = &quot;&quot;; requireSession() }
+        else message(error.message)
+    }
+    protected fun label(text: String, size: Float = 16f, bold: Boolean = false) = TextView(this).apply {
+        this.text = text; textSize = size; setTextColor(Color.rgb(24,46,39))
+        if (bold) setTypeface(typeface, Typeface.BOLD)
+        setPadding(0, dp(8), 0, dp(8))
+    }
+    protected fun button(text: String, action: () -&gt; Unit) = MaterialButton(this).apply {
+        this.text = text; isAllCaps = false; cornerRadius = dp(16); minHeight = dp(52)
+        setOnClickListener { action() }
+    }
+    protected fun field(parent: LinearLayout, title: String, input: Int = android.text.InputType.TYPE_CLASS_TEXT): TextInputEditText {
+        val wrapper = TextInputLayout(this).apply {
+            hint = title; boxBackgroundMode = TextInputLayout.BOX_BACKGROUND_OUTLINE
+            setBoxCornerRadii(dp(14).toFloat(),dp(14).toFloat(),dp(14).toFloat(),dp(14).toFloat())
+            layoutParams = LinearLayout.LayoutParams(-1,-2).apply { bottomMargin=dp(14) }
+        }
+        val edit = TextInputEditText(wrapper.context).apply { inputType=input; setSingleLine(true); minHeight=dp(56) }
+        wrapper.addView(edit); parent.addView(wrapper); return edit
+    }
+}
+</code></pre></section><section id="file6"><h2>app/src/main/java/com/ncc/fitnesstracker/Data.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.content.Context
+import com.android.volley.DefaultRetryPolicy
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONArray
+import org.json.JSONObject
+
+class Store(context: Context) {
+    private val prefs = context.getSharedPreferences(&quot;fitness_private&quot;, Context.MODE_PRIVATE)
+    var server: String
+        get() = prefs.getString(&quot;server&quot;, &quot;http://10.0.2.2:8088&quot;)!!
+        set(value) { prefs.edit().putString(&quot;server&quot;, value.trimEnd(&#x27;/&#x27;)).apply() }
+    var token: String
+        get() = prefs.getString(&quot;token&quot;, &quot;&quot;)!!
+        set(value) { prefs.edit().putString(&quot;token&quot;, value).apply() }
+    val name get() = prefs.getString(&quot;name&quot;, &quot;Athlete&quot;)!!
+    private val scope get() = &quot;${server}_${prefs.getLong(&quot;user&quot;, 0)}&quot;
+    fun signedIn(result: JSONObject) {
+        prefs.edit().putString(&quot;token&quot;, result.getString(&quot;token&quot;))
+            .putLong(&quot;user&quot;, result.getJSONObject(&quot;user&quot;).getLong(&quot;id&quot;))
+            .putString(&quot;name&quot;, result.getJSONObject(&quot;user&quot;).getString(&quot;name&quot;)).apply()
+    }
+    fun read(key: String): JSONArray = JSONArray(prefs.getString(&quot;${scope}_$key&quot;, &quot;[]&quot;))
+    fun write(key: String, value: JSONArray) { prefs.edit().putString(&quot;${scope}_$key&quot;, value.toString()).commit() }
+    fun queue(workout: JSONObject) {
+        val items = read(&quot;pending&quot;); items.put(workout); write(&quot;pending&quot;, items)
+    }
+    fun removePending(clientId: String) {
+        val next = JSONArray(); val old = read(&quot;pending&quot;)
+        for (i in 0 until old.length()) if (old.getJSONObject(i).getString(&quot;client_id&quot;) != clientId) next.put(old.getJSONObject(i))
+        write(&quot;pending&quot;, next)
+    }
+    fun history(): List&lt;JSONObject&gt; {
+        val rows = mutableListOf&lt;JSONObject&gt;()
+        val pending = read(&quot;pending&quot;); val cached = read(&quot;workouts&quot;)
+        val seen = mutableSetOf&lt;String&gt;()
+        for (array in listOf(pending, cached)) for (i in 0 until array.length()) {
+            val row = array.getJSONObject(i)
+            if (seen.add(row.getString(&quot;client_id&quot;))) rows.add(row)
+        }
+        return rows.sortedWith(compareByDescending&lt;JSONObject&gt; { it.optString(&quot;date&quot;) }.thenByDescending { it.optLong(&quot;id&quot;) })
+    }
+}
+
+data class ApiError(val message: String, val status: Int) {
+    val temporary get() = status == 0 || status &gt;= 500
+}
+class Api(context: Context) {
+    private val store = Store(context)
+    private val queue = Volley.newRequestQueue(context.applicationContext)
+    fun call(action: String, body: JSONObject? = null, success: (JSONObject) -&gt; Unit, failure: (ApiError) -&gt; Unit) {
+        val request = object : JsonObjectRequest(
+            if (body == null) Request.Method.GET else Request.Method.POST,
+            &quot;${store.server}/index.php?action=$action&quot;, body, success,
+            { error -&gt;
+                val status = error.networkResponse?.statusCode ?: 0
+                val message = try { JSONObject(String(error.networkResponse.data, Charsets.UTF_8)).optString(&quot;error&quot;, &quot;Request failed.&quot;) }
+                    catch (_: Exception) { if (status == 0) &quot;Cannot reach the server. Check your connection and server address.&quot; else &quot;Server error ($status). Try again.&quot; }
+                failure(ApiError(message, status))
+            }) {
+            override fun getHeaders(): MutableMap&lt;String, String&gt; = mutableMapOf(&quot;Authorization&quot; to &quot;Bearer ${store.token}&quot;)
+        }
+        request.retryPolicy = DefaultRetryPolicy(8000, 0, 1f)
+        request.setShouldCache(false)
+        queue.add(request)
+    }
+}
+
+fun JSONObject.workout(): Workout {
+    val id = optLong(&quot;id&quot;); val duration = getInt(&quot;duration&quot;); val date = getString(&quot;date&quot;)
+    return when (getString(&quot;type&quot;)) {
+        &quot;Running&quot; -&gt; RunningWorkout(id, duration, date, optDouble(&quot;distance&quot;, 0.0))
+        &quot;Cycling&quot; -&gt; CyclingWorkout(id, duration, date, optDouble(&quot;distance&quot;, 0.0))
+        &quot;Walking&quot; -&gt; WalkingWorkout(id, duration, date, optDouble(&quot;distance&quot;, 0.0))
+        else -&gt; WeightliftingWorkout(id, duration, date, optDouble(&quot;weight&quot;, 0.0), optInt(&quot;sets&quot;), optInt(&quot;reps&quot;))
+    }
+}
+</code></pre></section><section id="file7"><h2>app/src/main/java/com/ncc/fitnesstracker/MainActivity.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.app.DatePickerDialog
+import android.content.Intent
+import android.graphics.Color
+import android.net.ConnectivityManager
+import android.net.Network
+import android.os.Bundle
+import android.text.InputType
+import android.view.View
+import android.widget.*
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.progressindicator.LinearProgressIndicator
+import com.google.android.material.tabs.TabLayout
+import org.json.JSONArray
+import org.json.JSONObject
+import java.time.LocalDate
+import java.util.Locale
+
+class MainActivity : BaseActivity() {
+    private var busy=false
+    private var selected=0
+    private var callback: ConnectivityManager.NetworkCallback?=null
+    private val rows get()=store.history()
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState);if(!requireSession())return
+        setContentView(R.layout.activity_main)
+        findViewById&lt;TextView&gt;(R.id.greeting).text=&quot;Let&#x27;s move, ${store.name.substringBefore(&#x27; &#x27;)}.&quot;
+        findViewById&lt;RecyclerView&gt;(R.id.recyclerView).layoutManager=LinearLayoutManager(this)
+        val tabs=findViewById&lt;TabLayout&gt;(R.id.tabs)
+        listOf(&quot;History&quot;,&quot;Goals&quot;,&quot;Progress&quot;).forEach {tabs.addTab(tabs.newTab().setText(it))}
+        tabs.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab:TabLayout.Tab) {selected=tab.position;draw()}
+            override fun onTabUnselected(tab:TabLayout.Tab) {}
+            override fun onTabReselected(tab:TabLayout.Tab) {}
+        })
+        selected=savedInstanceState?.getInt(&quot;tab&quot;) ?: 0;tabs.getTabAt(selected)?.select()
+        findViewById&lt;View&gt;(R.id.fabAdd).setOnClickListener {if(selected==1) newGoal() else startActivity(Intent(this,AddWorkoutActivity::class.java))}
+        findViewById&lt;View&gt;(R.id.refresh).setOnClickListener {sync()}
+        findViewById&lt;View&gt;(R.id.signOut).setOnClickListener {
+            MaterialAlertDialogBuilder(this).setTitle(&quot;Sign out?&quot;)
+                .setMessage(if(store.read(&quot;pending&quot;).length()&gt;0) &quot;Unsynced workouts will stay on this device for this account. Sign in with the same account to sync them.&quot; else &quot;Your saved workouts will be here when you return.&quot;)
+                .setNegativeButton(&quot;Cancel&quot;,null).setPositiveButton(&quot;Sign out&quot;) {_,_-&gt;
+                    api.call(&quot;logout&quot;,JSONObject(),{},{});store.token=&quot;&quot;;requireSession()
+                }.show()
+        }
+    }
+    override fun onResume() {
+        super.onResume();if(store.token.isEmpty())return
+        draw();sync()
+        callback=object:ConnectivityManager.NetworkCallback(){override fun onAvailable(network:Network){runOnUiThread {if(!isFinishing)sync()}}}
+        (getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).registerDefaultNetworkCallback(callback!!)
+    }
+    override fun onPause() {
+        callback?.let {(getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager).unregisterNetworkCallback(it)}
+        callback=null;super.onPause()
+    }
+    override fun onSaveInstanceState(outState:Bundle){outState.putInt(&quot;tab&quot;,selected);super.onSaveInstanceState(outState)}
+    private fun status(text:String){if(!isDestroyed)findViewById&lt;TextView&gt;(R.id.status).text=text}
+    private fun sync() {
+        if(busy || store.token.isEmpty() || isFinishing)return
+        busy=true;status(&quot;Syncing your activity…&quot;)
+        fun uploadNext() {
+            if(isFinishing){busy=false;return}
+            val pending=store.read(&quot;pending&quot;)
+            if(pending.length()&gt;0) {
+                val row=pending.getJSONObject(0)
+                api.call(&quot;save_workout&quot;,row,{
+                    row.put(&quot;id&quot;,it.getLong(&quot;id&quot;))
+                    val cached=store.read(&quot;workouts&quot;);cached.put(row);store.write(&quot;workouts&quot;,cached)
+                    store.removePending(row.getString(&quot;client_id&quot;));uploadNext()
+                }, {error-&gt;busy=false;status(if(error.temporary) &quot;Offline · ${pending.length()} workout(s) waiting to sync&quot; else error.message);draw();if(error.status==401)apiFailure(error)})
+                return
+            }
+            api.call(&quot;workouts&quot;,success={
+                store.write(&quot;workouts&quot;,it.getJSONArray(&quot;workouts&quot;));draw()
+                api.call(&quot;goals&quot;,success={goals-&gt;store.write(&quot;goals&quot;,goals.getJSONArray(&quot;goals&quot;));busy=false;status(&quot;All changes saved · Tap Sync to refresh&quot;);draw()},failure={error-&gt;busy=false;status(error.message);if(error.status==401)apiFailure(error)})
+            },failure={error-&gt;busy=false;status(if(error.temporary) &quot;Offline · Showing workouts saved on this device&quot; else error.message);if(error.status==401)apiFailure(error)})
+        }
+        uploadNext()
+    }
+    private fun draw() {
+        if(isDestroyed || isFinishing)return
+        val history=rows;val today=LocalDate.now();val week=history.filter {it.getString(&quot;date&quot;)&gt;=today.minusDays(6).toString() &amp;&amp; it.getString(&quot;date&quot;)&lt;=today.toString()}
+        findViewById&lt;TextView&gt;(R.id.weeklyMinutes).text=&quot;${week.sumOf {it.getInt(&quot;duration&quot;)}} min&quot;
+        val km=week.sumOf {it.optDouble(&quot;distance&quot;,0.0)}
+        findViewById&lt;TextView&gt;(R.id.weeklyDetail).text=&quot;${week.size} workouts  ·  ${String.format(Locale.US,&quot;%.1f&quot;,km)} km recorded&quot;
+        findViewById&lt;TextView&gt;(R.id.sectionTitle).text=listOf(&quot;Recent workouts&quot;,&quot;Your fitness goals&quot;,&quot;Your progress&quot;)[selected]
+        findViewById&lt;RecyclerView&gt;(R.id.recyclerView).apply {visibility=if(selected==0)View.VISIBLE else View.GONE;adapter=WorkoutAdapter(history){showWorkout(it)}}
+        findViewById&lt;View&gt;(R.id.empty).visibility=if(selected==0 &amp;&amp; history.isEmpty())View.VISIBLE else View.GONE
+        findViewById&lt;View&gt;(R.id.detailsScroll).visibility=if(selected==0)View.GONE else View.VISIBLE
+        findViewById&lt;View&gt;(R.id.fabAdd).apply {visibility=if(selected==2)View.GONE else View.VISIBLE;contentDescription=if(selected==1)&quot;Add goal&quot; else &quot;Add workout&quot;}
+        val details=findViewById&lt;LinearLayout&gt;(R.id.details);details.removeAllViews()
+        if(selected==1) drawGoals(details)
+        if(selected==2) drawProgress(details)
+    }
+    private fun showWorkout(row:JSONObject) {
+        val location=if(row.isNull(&quot;latitude&quot;)) &quot;No location attached&quot; else &quot;Location: ${row.optString(&quot;latitude&quot;)}, ${row.optString(&quot;longitude&quot;)}&quot;
+        val info=&quot;${row.getString(&quot;date&quot;)} · ${row.getInt(&quot;duration&quot;)} minutes\n${row.workout().statistics()}\n$location\n${row.optString(&quot;notes&quot;)}&quot;
+        val builder=MaterialAlertDialogBuilder(this).setTitle(row.getString(&quot;type&quot;)).setMessage(info).setNegativeButton(&quot;Close&quot;,null)
+        if(row.optLong(&quot;id&quot;)&gt;0)builder.setPositiveButton(&quot;Edit&quot;) {_,_-&gt;startActivity(Intent(this,AddWorkoutActivity::class.java).putExtra(&quot;workout&quot;,row.toString()))}
+        builder.setNeutralButton(&quot;Delete&quot;) {_,_-&gt;
+            MaterialAlertDialogBuilder(this).setTitle(&quot;Delete this workout?&quot;).setMessage(&quot;This removes the workout and updates your goal progress.&quot;)
+                .setNegativeButton(&quot;Keep&quot;,null).setPositiveButton(&quot;Delete&quot;) {_,_-&gt;
+                    if(row.optLong(&quot;id&quot;)==0L){store.removePending(row.getString(&quot;client_id&quot;));draw()}
+                    else api.call(&quot;delete_workout&quot;,JSONObject().put(&quot;id&quot;,row.getLong(&quot;id&quot;)),{sync()},{apiFailure(it)})
+                }.show()
+        }.show()
+    }
+    private fun drawGoals(parent:LinearLayout) {
+        val goals=store.read(&quot;goals&quot;)
+        if(goals.length()==0)parent.addView(label(&quot;Make space for your next milestone. Tap + to set a goal in activity minutes.&quot;,17f))
+        for(i in 0 until goals.length()) {
+            val g=goals.getJSONObject(i);val target=g.getInt(&quot;target_minutes&quot;)
+            val done=rows.filter {it.getString(&quot;type&quot;)==g.getString(&quot;type&quot;) &amp;&amp; it.getString(&quot;date&quot;)&gt;=g.getString(&quot;start_date&quot;) &amp;&amp; it.getString(&quot;date&quot;)&lt;=g.getString(&quot;end_date&quot;)}.sumOf {it.getInt(&quot;duration&quot;)}
+            parent.addView(label(&quot;${g.getString(&quot;type&quot;)} · $target minutes&quot;,20f,true))
+            parent.addView(label(&quot;${g.getString(&quot;start_date&quot;)} to ${g.getString(&quot;end_date&quot;)}&quot;,13f))
+            parent.addView(LinearProgressIndicator(this).apply {max=target;progress=done.coerceAtMost(target);trackThickness=dp(8);setIndicatorColor(getColor(R.color.green))},LinearLayout.LayoutParams(-1,dp(16)))
+            val ended=g.getString(&quot;end_date&quot;)&lt;LocalDate.now().toString()
+            parent.addView(label(&quot;$done / $target min · ${if(done&gt;=target) &quot;Goal achieved!&quot; else if(ended) &quot;Period ended&quot; else &quot;${target-done} min to go&quot;}&quot;,15f,true))
+            parent.addView(button(&quot;Remove goal&quot;) {
+                MaterialAlertDialogBuilder(this).setTitle(&quot;Remove this goal?&quot;).setNegativeButton(&quot;Cancel&quot;,null).setPositiveButton(&quot;Remove&quot;) {_,_-&gt;api.call(&quot;delete_goal&quot;,JSONObject().put(&quot;id&quot;,g.getLong(&quot;id&quot;)),{sync()},{apiFailure(it)})}.show()
+            })
+        }
+    }
+    private fun drawProgress(parent:LinearLayout) {
+        parent.addView(label(&quot;Minutes over the last 7 days&quot;,17f,true))
+        val today=LocalDate.now();val totals=(6 downTo 0).map {offset-&gt;val date=today.minusDays(offset.toLong()).toString();rows.filter {it.getString(&quot;date&quot;)==date}.sumOf {it.getInt(&quot;duration&quot;)}}
+        parent.addView(WeeklyChart(this,totals),LinearLayout.LayoutParams(-1,dp(170)))
+        val current=totals.sum();val previous=rows.filter {it.getString(&quot;date&quot;)&gt;=today.minusDays(13).toString() &amp;&amp; it.getString(&quot;date&quot;)&lt;=today.minusDays(7).toString()}.sumOf {it.getInt(&quot;duration&quot;)}
+        val insight=if(previous==0) &quot;You&#x27;ve recorded $current minutes in the last 7 days. Keep logging to see your weekly trend.&quot; else &quot;${kotlin.math.abs(current-previous)} minutes ${if(current&gt;=previous) &quot;more&quot; else &quot;less&quot;} than the previous 7 days ($previous min).&quot;
+        parent.addView(label(insight,15f))
+        parent.addView(label(&quot;All-time activity breakdown&quot;,21f,true))
+        for(type in listOf(&quot;Running&quot;,&quot;Cycling&quot;,&quot;Weightlifting&quot;,&quot;Walking&quot;)) {
+            val records=rows.filter {it.getString(&quot;type&quot;)==type};val minutes=records.sumOf {it.getInt(&quot;duration&quot;)}
+            parent.addView(label(&quot;$type · ${records.size} sessions&quot;,18f,true))
+            val sum=records.sumOf {it.optDouble(&quot;distance&quot;,0.0)}
+            val stats=if(type==&quot;Weightlifting&quot;) {
+                val volume=records.sumOf { (it.workout() as WeightliftingWorkout).volume() }
+                &quot;${String.format(Locale.US,&quot;%.0f&quot;,volume)} kg total training volume&quot;
+            } else {
+                val extra=if(type==&quot;Cycling&quot;) &quot;${String.format(Locale.US,&quot;%.1f&quot;,if(minutes&gt;0)sum*60/minutes else 0.0)} km/h average&quot; else &quot;${String.format(Locale.US,&quot;%.1f&quot;,if(sum&gt;0)minutes/sum else 0.0)} min/km average&quot;
+                &quot;${String.format(Locale.US,&quot;%.1f&quot;,sum)} km · $extra&quot;
+            }
+            parent.addView(label(&quot;$minutes min · $stats&quot;,14f))
+        }
+        parent.addView(label(&quot;Statistics include workouts pending sync on this device. Distance and weight are entered by you; attached GPS coordinates mark a location, not a tracked route.&quot;,12f))
+    }
+    private fun newGoal() {
+        val content=LinearLayout(this).apply {orientation=LinearLayout.VERTICAL;setPadding(dp(24),dp(8),dp(24),0)}
+        content.addView(label(&quot;Activity&quot;,14f,true))
+        val type=Spinner(this).apply {adapter=ArrayAdapter(this@MainActivity,android.R.layout.simple_spinner_dropdown_item,listOf(&quot;Running&quot;,&quot;Cycling&quot;,&quot;Weightlifting&quot;,&quot;Walking&quot;))}
+        content.addView(type,LinearLayout.LayoutParams(-1,dp(52)))
+        val target=field(content,&quot;Target minutes&quot;,InputType.TYPE_CLASS_NUMBER)
+        var end=LocalDate.now().plusDays(6)
+        val dateButton=button(&quot;Until $end&quot;) {}
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d-&gt;end=LocalDate.of(y,m+1,d);dateButton.text=&quot;Until $end&quot;},end.year,end.monthValue-1,end.dayOfMonth).show()}
+        content.addView(dateButton);content.addView(label(&quot;Starts today. Progress uses workouts matching the activity and date range.&quot;,13f))
+        val dialog=MaterialAlertDialogBuilder(this).setTitle(&quot;Set a fitness goal&quot;).setView(content).setNegativeButton(&quot;Cancel&quot;,null).setPositiveButton(&quot;Save goal&quot;,null).create()
+        dialog.setOnShowListener {dialog.getButton(-1).setOnClickListener {
+            val minutes=target.text.toString().toIntOrNull()
+            if(minutes==null || minutes !in 1..100000){target.error=&quot;Enter 1 to 100000 minutes&quot;;return@setOnClickListener}
+            if(end&lt;LocalDate.now()){message(&quot;End date must be today or later&quot;);return@setOnClickListener}
+            dialog.getButton(-1).isEnabled=false
+            api.call(&quot;save_goal&quot;,JSONObject().put(&quot;type&quot;,type.selectedItem.toString()).put(&quot;target_minutes&quot;,minutes).put(&quot;start_date&quot;,LocalDate.now().toString()).put(&quot;end_date&quot;,end.toString()),{
+                dialog.dismiss();sync()
+            },{dialog.getButton(-1).isEnabled=true;apiFailure(it)})
+        }};dialog.show()
+    }
+}
+</code></pre></section><section id="file8"><h2>app/src/main/java/com/ncc/fitnesstracker/WeeklyChart.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.view.View
+import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
+
+/** A native chart backed by the same recorded minutes used in the accessible description. */
+class WeeklyChart @JvmOverloads constructor(context:Context,private val values:List&lt;Int&gt; = List(7){0}):View(context) {
+    private val paint=Paint(Paint.ANTI_ALIAS_FLAG)
+    init {contentDescription=&quot;Daily minutes, oldest to newest: ${values.joinToString()}. Total ${values.sum()} minutes.&quot;;importantForAccessibility=IMPORTANT_FOR_ACCESSIBILITY_YES}
+    override fun onDraw(canvas:Canvas) {
+        super.onDraw(canvas);val density=resources.displayMetrics.density;val bottom=height-28*density
+        val step=width/7f;val max=(values.maxOrNull()?:1).coerceAtLeast(1)
+        values.forEachIndexed {i,value-&gt;
+            val h=(bottom-30*density)*value/max;val x=step*i+step*.2f
+            paint.color=if(i==6)Color.rgb(23,107,81) else Color.rgb(188,220,165)
+            canvas.drawRoundRect(x,bottom-h, x+step*.6f,bottom,5*density,5*density,paint)
+            paint.color=Color.rgb(24,46,39);paint.textSize=android.util.TypedValue.applyDimension(android.util.TypedValue.COMPLEX_UNIT_SP,11f,resources.displayMetrics);paint.textAlign=Paint.Align.CENTER
+            canvas.drawText(value.toString(),x+step*.3f,bottom-h-6*density,paint)
+            val day=LocalDate.now().minusDays((6-i).toLong()).dayOfWeek.getDisplayName(TextStyle.SHORT,Locale.getDefault())
+            canvas.drawText(day,x+step*.3f,height-6*density,paint)
+        }
+    }
+}
+</code></pre></section><section id="file9"><h2>app/src/main/java/com/ncc/fitnesstracker/WorkoutAdapter.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import org.json.JSONObject
+
+/** Framework inheritance supplies recycling; polymorphic models supply activity statistics. */
+class WorkoutAdapter(private val rows: List&lt;JSONObject&gt;, private val clicked: (JSONObject) -&gt; Unit) : RecyclerView.Adapter&lt;WorkoutAdapter.WorkoutViewHolder&gt;() {
+    class WorkoutViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        val type: TextView = view.findViewById(R.id.tvType)
+        val duration: TextView = view.findViewById(R.id.tvDuration)
+        val stats: TextView = view.findViewById(R.id.tvStats)
+        val date: TextView = view.findViewById(R.id.tvDate)
+    }
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = WorkoutViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_workout,parent,false))
+    override fun getItemCount() = rows.size
+    override fun onBindViewHolder(holder: WorkoutViewHolder, position: Int) {
+        val row=rows[position];val model: Workout=row.workout()
+        holder.type.text=model.type;holder.duration.text=&quot;${model.duration} min&quot;
+        holder.stats.text=model.statistics()
+        holder.date.text=&quot;${model.date}  ·  ${if(row.optLong(&quot;id&quot;)==0L) &quot;Pending sync&quot; else &quot;Saved&quot;}${if(!row.isNull(&quot;latitude&quot;)) &quot;  ·  Location attached&quot; else &quot;&quot;}&quot;
+        holder.itemView.setOnClickListener {clicked(row)}
+    }
+}
+</code></pre></section><section id="file10"><h2>app/src/main/java/com/ncc/fitnesstracker/WorkoutModels.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import java.util.Locale
+
+/** Common identity and timing are inherited; each activity defines its own statistics. */
+abstract class Workout(val id: Long, val duration: Int, val date: String) {
+    abstract val type: String
+    abstract fun statistics(): String
+    protected fun fmt(value: Double) = String.format(Locale.US, &quot;%.1f&quot;, value)
+}
+class RunningWorkout(id: Long, duration: Int, date: String, val distance: Double) : Workout(id, duration, date) {
+    override val type = &quot;Running&quot;
+    fun pace(): Double = if (distance &gt; 0) duration / distance else 0.0
+    override fun statistics() = &quot;${fmt(distance)} km  /  ${fmt(pace())} min/km&quot;
+}
+class CyclingWorkout(id: Long, duration: Int, date: String, val distance: Double) : Workout(id, duration, date) {
+    override val type = &quot;Cycling&quot;
+    fun speed(): Double = if (duration &gt; 0) distance * 60 / duration else 0.0
+    override fun statistics() = &quot;${fmt(distance)} km  /  ${fmt(speed())} km/h&quot;
+}
+class WalkingWorkout(id: Long, duration: Int, date: String, val distance: Double) : Workout(id, duration, date) {
+    override val type = &quot;Walking&quot;
+    override fun statistics() = &quot;${fmt(distance)} km  /  ${fmt(if (distance &gt; 0) duration / distance else 0.0)} min/km&quot;
+}
+class WeightliftingWorkout(id: Long, duration: Int, date: String, val weight: Double, val sets: Int, val reps: Int) : Workout(id, duration, date) {
+    override val type = &quot;Weightlifting&quot;
+    fun volume(): Double = weight * sets * reps
+    override fun statistics() = &quot;$sets x $reps at ${fmt(weight)} kg  /  ${fmt(volume())} kg volume&quot;
+}
+</code></pre></section><section id="file11"><h2>app/src/main/res/drawable/ic_add.xml</h2><pre><code>&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;24dp&quot; android:height=&quot;24dp&quot; android:viewportWidth=&quot;24&quot; android:viewportHeight=&quot;24&quot;&gt;&lt;path android:fillColor=&quot;#182E27&quot; android:pathData=&quot;M11,5h2v6h6v2h-6v6h-2v-6h-6v-2h6z&quot; /&gt;&lt;/vector&gt;
+</code></pre></section><section id="file12"><h2>app/src/main/res/drawable/ic_fitness.xml</h2><pre><code>&lt;vector xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:width=&quot;48dp&quot; android:height=&quot;48dp&quot; android:viewportWidth=&quot;48&quot; android:viewportHeight=&quot;48&quot;&gt;
+    &lt;path android:fillColor=&quot;#176B51&quot; android:pathData=&quot;M0,0h48v48h-48z&quot; /&gt;
+    &lt;path android:strokeColor=&quot;#D5F5AD&quot; android:strokeWidth=&quot;3&quot; android:strokeLineCap=&quot;round&quot; android:strokeLineJoin=&quot;round&quot; android:fillColor=&quot;@android:color/transparent&quot; android:pathData=&quot;M8,25h8l5,-12l7,23l5,-11h7&quot; /&gt;
+&lt;/vector&gt;
+</code></pre></section><section id="file13"><h2>app/src/main/res/layout/activity_add_workout.xml</h2><pre><code>&lt;ScrollView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;match_parent&quot; android:fillViewport=&quot;true&quot;&gt;
+    &lt;LinearLayout android:id=&quot;@+id/workoutForm&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:padding=&quot;24dp&quot; android:orientation=&quot;vertical&quot; /&gt;
+&lt;/ScrollView&gt;
+</code></pre></section><section id="file14"><h2>app/src/main/res/layout/activity_main.xml</h2><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;androidx.constraintlayout.widget.ConstraintLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;match_parent&quot; android:paddingHorizontal=&quot;20dp&quot;&gt;
+    &lt;LinearLayout android:id=&quot;@+id/header&quot; android:orientation=&quot;vertical&quot; android:layout_width=&quot;0dp&quot; android:layout_height=&quot;wrap_content&quot; app:layout_constraintTop_toTopOf=&quot;parent&quot; app:layout_constraintStart_toStartOf=&quot;parent&quot; app:layout_constraintEnd_toEndOf=&quot;parent&quot;&gt;
+        &lt;LinearLayout android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:gravity=&quot;center_vertical&quot;&gt;
+            &lt;TextView android:layout_width=&quot;0dp&quot; android:layout_weight=&quot;1&quot; android:layout_height=&quot;wrap_content&quot; android:text=&quot;@string/brand&quot; android:textColor=&quot;@color/green&quot; android:letterSpacing=&quot;0.12&quot; android:textStyle=&quot;bold&quot; android:textSize=&quot;12sp&quot; /&gt;
+            &lt;com.google.android.material.button.MaterialButton android:id=&quot;@+id/signOut&quot; style=&quot;@style/Widget.MaterialComponents.Button.TextButton&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;48dp&quot; android:text=&quot;@string/sign_out&quot; android:textAllCaps=&quot;false&quot; /&gt;
+        &lt;/LinearLayout&gt;
+        &lt;TextView android:id=&quot;@+id/greeting&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:textSize=&quot;28sp&quot; android:textColor=&quot;@color/ink&quot; android:textStyle=&quot;bold&quot; android:text=&quot;@string/your_activity&quot; /&gt;
+        &lt;TextView android:id=&quot;@+id/status&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:paddingVertical=&quot;8dp&quot; android:text=&quot;@string/ready_status&quot; android:textColor=&quot;@color/muted&quot; android:textSize=&quot;13sp&quot; android:accessibilityLiveRegion=&quot;polite&quot; /&gt;
+        &lt;com.google.android.material.card.MaterialCardView android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; app:cardBackgroundColor=&quot;@color/green&quot; app:cardCornerRadius=&quot;24dp&quot; app:cardElevation=&quot;0dp&quot; android:layout_marginVertical=&quot;8dp&quot;&gt;
+            &lt;LinearLayout android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:padding=&quot;22dp&quot; android:orientation=&quot;vertical&quot;&gt;
+                &lt;TextView android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:text=&quot;@string/last_seven_days&quot; android:textColor=&quot;#D5F5AD&quot; android:textSize=&quot;12sp&quot; android:letterSpacing=&quot;0.08&quot; /&gt;
+                &lt;TextView android:id=&quot;@+id/weeklyMinutes&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:text=&quot;@string/zero_minutes&quot; android:textSize=&quot;38sp&quot; android:textStyle=&quot;bold&quot; android:textColor=&quot;#FFFFFF&quot; /&gt;
+                &lt;TextView android:id=&quot;@+id/weeklyDetail&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:text=&quot;@string/start_today&quot; android:textSize=&quot;14sp&quot; android:textColor=&quot;#ECF6EE&quot; /&gt;
+            &lt;/LinearLayout&gt;
+        &lt;/com.google.android.material.card.MaterialCardView&gt;
+        &lt;com.google.android.material.tabs.TabLayout android:id=&quot;@+id/tabs&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;52dp&quot; app:tabTextColor=&quot;@color/muted&quot; app:tabSelectedTextColor=&quot;@color/green&quot; app:tabIndicatorColor=&quot;@color/green&quot; app:tabMode=&quot;fixed&quot; /&gt;
+        &lt;LinearLayout android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:gravity=&quot;center_vertical&quot;&gt;
+            &lt;TextView android:id=&quot;@+id/sectionTitle&quot; android:layout_width=&quot;0dp&quot; android:layout_weight=&quot;1&quot; android:layout_height=&quot;wrap_content&quot; android:text=&quot;@string/recent_workouts&quot; android:textSize=&quot;20sp&quot; android:textStyle=&quot;bold&quot; android:textColor=&quot;@color/ink&quot; /&gt;
+            &lt;com.google.android.material.button.MaterialButton android:id=&quot;@+id/refresh&quot; style=&quot;@style/Widget.MaterialComponents.Button.TextButton&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;48dp&quot; android:text=&quot;@string/sync&quot; android:textAllCaps=&quot;false&quot; /&gt;
+        &lt;/LinearLayout&gt;
+    &lt;/LinearLayout&gt;
+    &lt;androidx.recyclerview.widget.RecyclerView android:id=&quot;@+id/recyclerView&quot; android:layout_width=&quot;0dp&quot; android:layout_height=&quot;0dp&quot; android:clipToPadding=&quot;false&quot; android:paddingBottom=&quot;88dp&quot; app:layout_constraintTop_toBottomOf=&quot;@id/header&quot; app:layout_constraintBottom_toBottomOf=&quot;parent&quot; app:layout_constraintStart_toStartOf=&quot;parent&quot; app:layout_constraintEnd_toEndOf=&quot;parent&quot; /&gt;
+    &lt;ScrollView android:id=&quot;@+id/detailsScroll&quot; android:layout_width=&quot;0dp&quot; android:layout_height=&quot;0dp&quot; android:visibility=&quot;gone&quot; android:fillViewport=&quot;true&quot; app:layout_constraintTop_toBottomOf=&quot;@id/header&quot; app:layout_constraintBottom_toBottomOf=&quot;parent&quot; app:layout_constraintStart_toStartOf=&quot;parent&quot; app:layout_constraintEnd_toEndOf=&quot;parent&quot;&gt;
+        &lt;LinearLayout android:id=&quot;@+id/details&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:orientation=&quot;vertical&quot; android:paddingBottom=&quot;88dp&quot; /&gt;
+    &lt;/ScrollView&gt;
+    &lt;TextView android:id=&quot;@+id/empty&quot; android:layout_width=&quot;0dp&quot; android:layout_height=&quot;wrap_content&quot; android:gravity=&quot;center&quot; android:padding=&quot;24dp&quot; android:text=&quot;@string/empty_history&quot; android:textSize=&quot;17sp&quot; android:textColor=&quot;@color/muted&quot; app:layout_constraintTop_toBottomOf=&quot;@id/header&quot; app:layout_constraintBottom_toBottomOf=&quot;parent&quot; app:layout_constraintStart_toStartOf=&quot;parent&quot; app:layout_constraintEnd_toEndOf=&quot;parent&quot; /&gt;
+    &lt;com.google.android.material.floatingactionbutton.FloatingActionButton android:id=&quot;@+id/fabAdd&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:layout_margin=&quot;16dp&quot; android:contentDescription=&quot;@string/add_workout&quot; app:srcCompat=&quot;@drawable/ic_add&quot; app:backgroundTint=&quot;#BCE983&quot; app:layout_constraintBottom_toBottomOf=&quot;parent&quot; app:layout_constraintEnd_toEndOf=&quot;parent&quot; /&gt;
+&lt;/androidx.constraintlayout.widget.ConstraintLayout&gt;
+</code></pre></section><section id="file15"><h2>app/src/main/res/layout/item_workout.xml</h2><pre><code>&lt;com.google.android.material.card.MaterialCardView xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot; xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginBottom=&quot;12dp&quot; app:cardCornerRadius=&quot;18dp&quot; app:cardElevation=&quot;0dp&quot; app:strokeColor=&quot;#DFE6DD&quot; app:strokeWidth=&quot;1dp&quot; android:clickable=&quot;true&quot; android:focusable=&quot;true&quot;&gt;
+    &lt;LinearLayout android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:padding=&quot;18dp&quot; android:orientation=&quot;vertical&quot;&gt;
+        &lt;LinearLayout android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot;&gt;
+            &lt;TextView android:id=&quot;@+id/tvType&quot; android:layout_width=&quot;0dp&quot; android:layout_weight=&quot;1&quot; android:layout_height=&quot;wrap_content&quot; android:textSize=&quot;18sp&quot; android:textStyle=&quot;bold&quot; android:textColor=&quot;@color/ink&quot; /&gt;
+            &lt;TextView android:id=&quot;@+id/tvDuration&quot; android:layout_width=&quot;wrap_content&quot; android:layout_height=&quot;wrap_content&quot; android:textSize=&quot;16sp&quot; android:textStyle=&quot;bold&quot; android:textColor=&quot;@color/green&quot; /&gt;
+        &lt;/LinearLayout&gt;
+        &lt;TextView android:id=&quot;@+id/tvStats&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;8dp&quot; android:textSize=&quot;14sp&quot; android:textColor=&quot;@color/muted&quot; /&gt;
+        &lt;TextView android:id=&quot;@+id/tvDate&quot; android:layout_width=&quot;match_parent&quot; android:layout_height=&quot;wrap_content&quot; android:layout_marginTop=&quot;8dp&quot; android:textSize=&quot;12sp&quot; android:textColor=&quot;@color/muted&quot; /&gt;
+    &lt;/LinearLayout&gt;
+&lt;/com.google.android.material.card.MaterialCardView&gt;
+</code></pre></section><section id="file16"><h2>app/src/main/res/values-v27/styles.xml</h2><pre><code>&lt;resources&gt;
+    &lt;style name=&quot;Theme.FitnessTracker&quot; parent=&quot;Theme.FitnessTracker.Base&quot;&gt;
+        &lt;item name=&quot;android:windowLightNavigationBar&quot;&gt;true&lt;/item&gt;
+    &lt;/style&gt;
+&lt;/resources&gt;
+</code></pre></section><section id="file17"><h2>app/src/main/res/values/ids.xml</h2><pre><code>&lt;resources&gt;
+    &lt;item name=&quot;auth_name&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;auth_email&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;auth_password&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_activity&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_duration&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_distance&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_weight&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_sets&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_reps&quot; type=&quot;id&quot; /&gt;
+    &lt;item name=&quot;workout_notes&quot; type=&quot;id&quot; /&gt;
+&lt;/resources&gt;
+</code></pre></section><section id="file18"><h2>app/src/main/res/values/strings.xml</h2><pre><code>&lt;resources&gt;
+    &lt;string name=&quot;app_name&quot;&gt;Fitness Tracker&lt;/string&gt;
+    &lt;string name=&quot;brand&quot;&gt;FITNESS TRACKER&lt;/string&gt;
+    &lt;string name=&quot;sign_out&quot;&gt;Sign out&lt;/string&gt;
+    &lt;string name=&quot;your_activity&quot;&gt;Your activity&lt;/string&gt;
+    &lt;string name=&quot;ready_status&quot;&gt;Ready for your next session&lt;/string&gt;
+    &lt;string name=&quot;last_seven_days&quot;&gt;YOUR LAST 7 DAYS&lt;/string&gt;
+    &lt;string name=&quot;zero_minutes&quot;&gt;0 min&lt;/string&gt;
+    &lt;string name=&quot;start_today&quot;&gt;Start with one workout today.&lt;/string&gt;
+    &lt;string name=&quot;recent_workouts&quot;&gt;Recent workouts&lt;/string&gt;
+    &lt;string name=&quot;sync&quot;&gt;Sync&lt;/string&gt;
+    &lt;string name=&quot;empty_history&quot;&gt;Your story starts here.\nTap + to record your first workout.&lt;/string&gt;
+    &lt;string name=&quot;add_workout&quot;&gt;Add workout&lt;/string&gt;
+&lt;/resources&gt;
+</code></pre></section><section id="file19"><h2>app/src/main/res/values/styles.xml</h2><pre><code>&lt;resources&gt;
+    &lt;color name=&quot;green&quot;&gt;#176B51&lt;/color&gt;&lt;color name=&quot;ink&quot;&gt;#182E27&lt;/color&gt;
+    &lt;color name=&quot;paper&quot;&gt;#F6F8F3&lt;/color&gt;&lt;color name=&quot;muted&quot;&gt;#53675F&lt;/color&gt;
+    &lt;style name=&quot;Theme.FitnessTracker.Base&quot; parent=&quot;Theme.MaterialComponents.Light.NoActionBar&quot;&gt;
+        &lt;item name=&quot;colorPrimary&quot;&gt;@color/green&lt;/item&gt;&lt;item name=&quot;colorPrimaryVariant&quot;&gt;#104D3A&lt;/item&gt;
+        &lt;item name=&quot;colorSecondary&quot;&gt;#BCE983&lt;/item&gt;&lt;item name=&quot;colorOnSecondary&quot;&gt;@color/ink&lt;/item&gt;
+        &lt;item name=&quot;android:fontFamily&quot;&gt;sans&lt;/item&gt;&lt;item name=&quot;android:windowLightStatusBar&quot;&gt;true&lt;/item&gt;
+        &lt;item name=&quot;android:statusBarColor&quot;&gt;@color/paper&lt;/item&gt;&lt;item name=&quot;android:navigationBarColor&quot;&gt;@color/paper&lt;/item&gt;
+        &lt;item name=&quot;android:windowBackground&quot;&gt;@color/paper&lt;/item&gt;&lt;item name=&quot;android:colorAccent&quot;&gt;@color/green&lt;/item&gt;
+    &lt;/style&gt;
+    &lt;style name=&quot;Theme.FitnessTracker&quot; parent=&quot;Theme.FitnessTracker.Base&quot; /&gt;
+&lt;/resources&gt;
+</code></pre></section><section id="file20"><h2>app/src/main/res/xml/data_extraction_rules.xml</h2><pre><code>&lt;data-extraction-rules&gt;
+    &lt;cloud-backup&gt;
+        &lt;exclude domain=&quot;sharedpref&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;database&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;file&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;root&quot; path=&quot;.&quot; /&gt;
+    &lt;/cloud-backup&gt;
+    &lt;device-transfer&gt;
+        &lt;exclude domain=&quot;sharedpref&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;database&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;file&quot; path=&quot;.&quot; /&gt;
+        &lt;exclude domain=&quot;root&quot; path=&quot;.&quot; /&gt;
+    &lt;/device-transfer&gt;
+&lt;/data-extraction-rules&gt;
+</code></pre></section><section id="file21"><h2>app/src/main/res/xml/network_security_config.xml</h2><pre><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;network-security-config&gt;&lt;base-config cleartextTrafficPermitted=&quot;false&quot; /&gt;&lt;/network-security-config&gt;
+</code></pre></section><section id="file22"><h2>app/src/test/java/com/ncc/fitnesstracker/WorkoutTest.kt</h2><pre><code>package com.ncc.fitnesstracker
+
+import org.junit.Assert.*
+import org.junit.Test
+
+class WorkoutTest {
+    @Test fun runningPaceUsesMinutesPerKilometre(){assertEquals(6.0,RunningWorkout(1,30,&quot;2026-10-25&quot;,5.0).pace(),0.001)}
+    @Test fun cyclingSpeedConvertsMinutesToHours(){assertEquals(24.0,CyclingWorkout(2,30,&quot;2026-10-25&quot;,12.0).speed(),0.001)}
+    @Test fun liftingVolumeIncludesSetsAndRepetitions(){assertEquals(1200.0,WeightliftingWorkout(3,40,&quot;2026-10-25&quot;,40.0,3,10).volume(),0.001)}
+    @Test fun emptyDistanceCannotDivideByZero(){assertEquals(0.0,RunningWorkout(1,10,&quot;2026-10-25&quot;,0.0).pace(),0.0)}
+    @Test fun polymorphicStatisticsMatchEachActivity(){
+        val records:List&lt;Workout&gt; = listOf(RunningWorkout(1,30,&quot;2026-10-25&quot;,5.0),CyclingWorkout(2,30,&quot;2026-10-25&quot;,12.0),WeightliftingWorkout(3,40,&quot;2026-10-25&quot;,40.0,3,10))
+        assertTrue(records[0].statistics().contains(&quot;6.0 min/km&quot;));assertTrue(records[1].statistics().contains(&quot;24.0 km/h&quot;));assertTrue(records[2].statistics().contains(&quot;1200.0 kg volume&quot;))
+    }
+}
+</code></pre></section><section id="file23"><h2>backend/bootstrap.php</h2><pre><code>&lt;?php
+declare(strict_types=1);
+header(&#x27;Content-Type: application/json; charset=utf-8&#x27;);
+header(&#x27;Cache-Control: no-store&#x27;);
+header(&#x27;X-Content-Type-Options: nosniff&#x27;);
+function respond(array $data, int $status = 200): never {
+    http_response_code($status);
+    echo json_encode($data, JSON_THROW_ON_ERROR);
+    exit;
+}
+function fail(string $message, int $status = 422): never { respond([&#x27;error&#x27; =&gt; $message], $status); }
+set_exception_handler(function(Throwable $e): void {
+    error_log((string)$e);
+    fail(&#x27;The server could not complete this request. Please try again.&#x27;, 500);
+});
+function db(): PDO {
+    static $pdo;
+    if (!$pdo) {
+        $file = __DIR__ . &#x27;/config.local.php&#x27;;
+        if (!is_file($file)) fail(&#x27;Server database configuration is missing.&#x27;, 503);
+        $c = require $file;
+        $pdo = new PDO(&quot;mysql:host={$c[&#x27;host&#x27;]};port={$c[&#x27;port&#x27;]};dbname={$c[&#x27;database&#x27;]};charset=utf8mb4&quot;,
+            $c[&#x27;user&#x27;], $c[&#x27;password&#x27;], [PDO::ATTR_ERRMODE =&gt; PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE =&gt; PDO::FETCH_ASSOC, PDO::ATTR_EMULATE_PREPARES =&gt; false]);
+        $pdo-&gt;exec(&quot;SET time_zone = &#x27;+00:00&#x27;&quot;);
+    }
+    return $pdo;
+}
+function input(): array {
+    if ((int)($_SERVER[&#x27;CONTENT_LENGTH&#x27;] ?? 0) &gt; 16384) fail(&#x27;Request too large.&#x27;, 413);
+    try { $data = json_decode(file_get_contents(&#x27;php://input&#x27;), true, 32, JSON_THROW_ON_ERROR); }
+    catch(JsonException $e) { fail(&#x27;Send a valid JSON object.&#x27;); }
+    if (!is_array($data)) fail(&#x27;Send a JSON object.&#x27;);
+    return $data;
+}
+function textValue(array $d, string $key, int $max, bool $required=true): string {
+    if (isset($d[$key]) &amp;&amp; !is_string($d[$key])) fail(&quot;Invalid $key.&quot;);
+    $v = trim($d[$key] ?? &#x27;&#x27;);
+    if (($required &amp;&amp; $v === &#x27;&#x27;) || strlen($v) &gt; $max) fail(&quot;Please enter a valid $key (up to $max characters).&quot;);
+    return $v;
+}
+function numberValue(array $d, string $key, float $min, float $max, bool $integer=false): float|int {
+    $v = $d[$key] ?? null;
+    if (!is_numeric($v) || !is_finite((float)$v) || $v &lt; $min || $v &gt; $max || ($integer &amp;&amp; floor((float)$v) != $v))
+        fail(&quot;$key must be &quot; . ($integer ? &#x27;a whole number &#x27; : &#x27;&#x27;) . &quot;between $min and $max.&quot;);
+    return $integer ? (int)$v : (float)$v;
+}
+function dateValue(array $d, string $key): string {
+    $v=textValue($d,$key,10);
+    $date=DateTimeImmutable::createFromFormat(&#x27;!Y-m-d&#x27;,$v);
+    if (!$date || $date-&gt;format(&#x27;Y-m-d&#x27;) !== $v || $v &lt; &#x27;2000-01-01&#x27; || $v &gt; &#x27;2100-12-31&#x27;) fail(&quot;Invalid $key.&quot;);
+    return $v;
+}
+function activityType(array $d): string {
+    $v = textValue($d,&#x27;type&#x27;,20);
+    if (!in_array($v,[&#x27;Running&#x27;,&#x27;Cycling&#x27;,&#x27;Weightlifting&#x27;,&#x27;Walking&#x27;],true)) fail(&#x27;Choose a supported activity.&#x27;);
+    return $v;
+}
+function authenticatedUser(): int {
+    $header = $_SERVER[&#x27;HTTP_AUTHORIZATION&#x27;] ?? &#x27;&#x27;;
+    if (!preg_match(&#x27;/^Bearer ([a-f0-9]{64})$/D&#x27;, $header, $m)) fail(&#x27;Please sign in again.&#x27;,401);
+    $q=db()-&gt;prepare(&#x27;SELECT user_id FROM sessions WHERE token_hash=? AND expires_at&gt;UTC_TIMESTAMP()&#x27;);
+    $q-&gt;execute([hash(&#x27;sha256&#x27;,$m[1])]);
+    $id=$q-&gt;fetchColumn();
+    if (!$id) fail(&#x27;Your session has expired. Please sign in again.&#x27;,401);
+    return (int)$id;
+}
+function issueSession(int $id, string $name): never {
+    $token=bin2hex(random_bytes(32));
+    db()-&gt;prepare(&#x27;DELETE FROM sessions WHERE expires_at&lt;UTC_TIMESTAMP()&#x27;)-&gt;execute();
+    db()-&gt;prepare(&#x27;INSERT INTO sessions(token_hash,user_id,expires_at) VALUES(?,?,DATE_ADD(UTC_TIMESTAMP(),INTERVAL 7 DAY))&#x27;)
+        -&gt;execute([hash(&#x27;sha256&#x27;,$token),$id]);
+    respond([&#x27;token&#x27;=&gt;$token,&#x27;user&#x27;=&gt;[&#x27;id&#x27;=&gt;$id,&#x27;name&#x27;=&gt;$name]]);
+}
+</code></pre></section><section id="file24"><h2>backend/config.example.php</h2><pre><code>&lt;?php
+// Copy to config.local.php beside this file. Keep credentials out of source control.
+return [
+    &#x27;host&#x27; =&gt; &#x27;127.0.0.1&#x27;,
+    &#x27;port&#x27; =&gt; 3306,
+    &#x27;database&#x27; =&gt; &#x27;fitness_db&#x27;,
+    &#x27;user&#x27; =&gt; &#x27;fitness_app&#x27;,
+    &#x27;password&#x27; =&gt; &#x27;REPLACE_WITH_YOUR_DATABASE_PASSWORD&#x27;
+];
+</code></pre></section><section id="file25"><h2>backend/fitness_db.sql</h2><pre><code>CREATE DATABASE IF NOT EXISTS fitness_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE fitness_db;
+CREATE TABLE IF NOT EXISTS users (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ name VARCHAR(100) NOT NULL,
+ email VARCHAR(190) NOT NULL UNIQUE,
+ password_hash VARCHAR(255) NOT NULL,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS sessions (
+ token_hash CHAR(64) PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ expires_at DATETIME NOT NULL,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ INDEX session_expiry (expires_at)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS workouts (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ client_id CHAR(36) NOT NULL,
+ type ENUM(&#x27;Running&#x27;,&#x27;Cycling&#x27;,&#x27;Weightlifting&#x27;,&#x27;Walking&#x27;) NOT NULL,
+ duration INT NOT NULL,
+ distance DECIMAL(8,2) NULL,
+ weight DECIMAL(8,2) NULL,
+ sets INT NULL,
+ reps INT NULL,
+ date DATE NOT NULL,
+ latitude DECIMAL(10,7) NULL,
+ longitude DECIMAL(10,7) NULL,
+ notes VARCHAR(500) NOT NULL DEFAULT &#x27;&#x27;,
+ created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ UNIQUE KEY sync_idempotency (user_id,client_id),
+ INDEX history_lookup (user_id,date),
+ CONSTRAINT duration_positive CHECK (duration BETWEEN 1 AND 1440),
+ CONSTRAINT distance_positive CHECK (distance IS NULL OR distance &gt; 0),
+ CONSTRAINT weight_positive CHECK (weight IS NULL OR weight &gt; 0)
+) ENGINE=InnoDB;
+CREATE TABLE IF NOT EXISTS goals (
+ id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+ user_id BIGINT UNSIGNED NOT NULL,
+ type ENUM(&#x27;Running&#x27;,&#x27;Cycling&#x27;,&#x27;Weightlifting&#x27;,&#x27;Walking&#x27;) NOT NULL,
+ target_minutes INT NOT NULL,
+ start_date DATE NOT NULL,
+ end_date DATE NOT NULL,
+ FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+ INDEX goal_lookup (user_id,end_date),
+ CONSTRAINT target_positive CHECK (target_minutes BETWEEN 1 AND 100000),
+ CONSTRAINT date_order CHECK (end_date &gt;= start_date)
+) ENGINE=InnoDB;
+</code></pre></section><section id="file26"><h2>backend/public/index.php</h2><pre><code>&lt;?php
+declare(strict_types=1);
+require dirname(__DIR__).&#x27;/bootstrap.php&#x27;;
+$action=$_GET[&#x27;action&#x27;] ?? &#x27;&#x27;;
+$method=$_SERVER[&#x27;REQUEST_METHOD&#x27;];
+$allowed=[&#x27;health&#x27;=&gt;&#x27;GET&#x27;,&#x27;register&#x27;=&gt;&#x27;POST&#x27;,&#x27;login&#x27;=&gt;&#x27;POST&#x27;,&#x27;logout&#x27;=&gt;&#x27;POST&#x27;,&#x27;workouts&#x27;=&gt;&#x27;GET&#x27;,
+    &#x27;save_workout&#x27;=&gt;&#x27;POST&#x27;,&#x27;delete_workout&#x27;=&gt;&#x27;POST&#x27;,&#x27;goals&#x27;=&gt;&#x27;GET&#x27;,&#x27;save_goal&#x27;=&gt;&#x27;POST&#x27;,&#x27;delete_goal&#x27;=&gt;&#x27;POST&#x27;];
+if (!isset($allowed[$action])) fail(&#x27;Endpoint not found.&#x27;,404);
+if ($allowed[$action] !== $method) fail(&#x27;Method not allowed.&#x27;,405);
+if ($action===&#x27;health&#x27;) { db()-&gt;query(&#x27;SELECT 1&#x27;); respond([&#x27;status&#x27;=&gt;&#x27;ok&#x27;,&#x27;service&#x27;=&gt;&#x27;Fitness Tracker&#x27;]); }
+if ($action===&#x27;register&#x27; || $action===&#x27;login&#x27;) {
+    $d=input();
+    $email=strtolower(textValue($d,&#x27;email&#x27;,190));
+    if (!filter_var($email,FILTER_VALIDATE_EMAIL)) fail(&#x27;Enter a valid email address.&#x27;);
+    $password=$d[&#x27;password&#x27;] ?? &#x27;&#x27;;
+    if (!is_string($password) || strlen($password)&lt;8 || strlen($password)&gt;72) fail(&#x27;Use a password of 8 to 72 bytes.&#x27;);
+    if ($action===&#x27;register&#x27;) {
+        $name=textValue($d,&#x27;name&#x27;,100);
+        try { db()-&gt;prepare(&#x27;INSERT INTO users(name,email,password_hash) VALUES(?,?,?)&#x27;)
+            -&gt;execute([$name,$email,password_hash($password,PASSWORD_DEFAULT)]); }
+        catch(PDOException $e) { if ($e-&gt;getCode()===&#x27;23000&#x27;) fail(&#x27;This email is already registered.&#x27;,409); throw $e; }
+        issueSession((int)db()-&gt;lastInsertId(),$name);
+    }
+    $q=db()-&gt;prepare(&#x27;SELECT id,name,password_hash FROM users WHERE email=?&#x27;);$q-&gt;execute([$email]);$u=$q-&gt;fetch();
+    // Always run password verification to reduce account-enumeration timing differences.
+    $hash=$u[&#x27;password_hash&#x27;] ?? &#x27;$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2uheWG/igi.&#x27;;
+    if (!password_verify($password,$hash) || !$u) { usleep(200000); fail(&#x27;Email or password is incorrect.&#x27;,401); }
+    issueSession((int)$u[&#x27;id&#x27;],$u[&#x27;name&#x27;]);
+}
+$uid=authenticatedUser();
+if ($action===&#x27;logout&#x27;) {
+    $token=substr($_SERVER[&#x27;HTTP_AUTHORIZATION&#x27;],7);
+    db()-&gt;prepare(&#x27;DELETE FROM sessions WHERE token_hash=?&#x27;)-&gt;execute([hash(&#x27;sha256&#x27;,$token)]);
+    respond([&#x27;ok&#x27;=&gt;true]);
+}
+if ($action===&#x27;workouts&#x27;) {
+    $q=db()-&gt;prepare(&#x27;SELECT id,client_id,type,duration,distance,weight,sets,reps,date,latitude,longitude,notes FROM workouts WHERE user_id=? ORDER BY date DESC,id DESC&#x27;);
+    $q-&gt;execute([$uid]);respond([&#x27;workouts&#x27;=&gt;$q-&gt;fetchAll()]);
+}
+if ($action===&#x27;save_workout&#x27;) {
+    $d=input();$type=activityType($d);$duration=numberValue($d,&#x27;duration&#x27;,1,1440,true);$date=dateValue($d,&#x27;date&#x27;);
+    if ($date&gt;gmdate(&#x27;Y-m-d&#x27;,time()+14*3600)) fail(&#x27;A completed workout cannot be in the future.&#x27;);
+    $client=textValue($d,&#x27;client_id&#x27;,36);
+    if (!preg_match(&#x27;/^[a-f0-9-]{36}$/D&#x27;,$client)) fail(&#x27;Invalid client identifier.&#x27;);
+    $strength=$type===&#x27;Weightlifting&#x27;;
+    $distance=$strength?null:numberValue($d,&#x27;distance&#x27;,0.01,99999);
+    $weight=$strength?numberValue($d,&#x27;weight&#x27;,0.01,99999):null;
+    $sets=$strength?numberValue($d,&#x27;sets&#x27;,1,1000,true):null;
+    $reps=$strength?numberValue($d,&#x27;reps&#x27;,1,1000,true):null;
+    $lat=$d[&#x27;latitude&#x27;] ?? null;$lon=$d[&#x27;longitude&#x27;] ?? null;
+    if (($lat===null)!==($lon===null)) fail(&#x27;Both location coordinates are required.&#x27;);
+    if ($lat!==null) {$lat=numberValue($d,&#x27;latitude&#x27;,-90,90);$lon=numberValue($d,&#x27;longitude&#x27;,-180,180);}
+    $notes=textValue($d,&#x27;notes&#x27;,500,false);
+    $id=isset($d[&#x27;id&#x27;])?numberValue($d,&#x27;id&#x27;,0,PHP_INT_MAX,true):0;
+    if ($id&gt;0) {
+        $q=db()-&gt;prepare(&#x27;SELECT id FROM workouts WHERE id=? AND user_id=?&#x27;);$q-&gt;execute([$id,$uid]);
+        if (!$q-&gt;fetch()) fail(&#x27;Workout not found.&#x27;,404);
+        db()-&gt;prepare(&#x27;UPDATE workouts SET type=?,duration=?,distance=?,weight=?,sets=?,reps=?,date=?,latitude=?,longitude=?,notes=? WHERE id=? AND user_id=?&#x27;)
+            -&gt;execute([$type,$duration,$distance,$weight,$sets,$reps,$date,$lat,$lon,$notes,$id,$uid]);
+    } else {
+        // A stable UUID makes retrying a pending offline workout safe.
+        $q=db()-&gt;prepare(&#x27;INSERT INTO workouts(user_id,client_id,type,duration,distance,weight,sets,reps,date,latitude,longitude,notes) VALUES(?,?,?,?,?,?,?,?,?,?,?,?) ON DUPLICATE KEY UPDATE id=LAST_INSERT_ID(id)&#x27;);
+        $q-&gt;execute([$uid,$client,$type,$duration,$distance,$weight,$sets,$reps,$date,$lat,$lon,$notes]);
+        $id=(int)db()-&gt;lastInsertId();
+    }
+    respond([&#x27;ok&#x27;=&gt;true,&#x27;id&#x27;=&gt;(int)$id]);
+}
+if ($action===&#x27;delete_workout&#x27; || $action===&#x27;delete_goal&#x27;) {
+    $d=input();$id=numberValue($d,&#x27;id&#x27;,1,PHP_INT_MAX,true);
+    $table=$action===&#x27;delete_workout&#x27;?&#x27;workouts&#x27;:&#x27;goals&#x27;;
+    $q=db()-&gt;prepare(&quot;DELETE FROM $table WHERE id=? AND user_id=?&quot;);$q-&gt;execute([$id,$uid]);
+    if (!$q-&gt;rowCount()) fail(&#x27;Record not found.&#x27;,404);
+    respond([&#x27;ok&#x27;=&gt;true]);
+}
+if ($action===&#x27;goals&#x27;) {
+    $q=db()-&gt;prepare(&#x27;SELECT g.id,g.type,g.target_minutes,g.start_date,g.end_date,COALESCE(SUM(w.duration),0) AS completed_minutes FROM goals g LEFT JOIN workouts w ON w.user_id=g.user_id AND w.type=g.type AND w.date BETWEEN g.start_date AND g.end_date WHERE g.user_id=? GROUP BY g.id ORDER BY g.end_date DESC,g.id DESC&#x27;);
+    $q-&gt;execute([$uid]);respond([&#x27;goals&#x27;=&gt;$q-&gt;fetchAll()]);
+}
+if ($action===&#x27;save_goal&#x27;) {
+    $d=input();$type=activityType($d);$target=numberValue($d,&#x27;target_minutes&#x27;,1,100000,true);
+    $start=dateValue($d,&#x27;start_date&#x27;);$end=dateValue($d,&#x27;end_date&#x27;);
+    if ($end&lt;$start) fail(&#x27;End date must be on or after start date.&#x27;);
+    db()-&gt;prepare(&#x27;INSERT INTO goals(user_id,type,target_minutes,start_date,end_date) VALUES(?,?,?,?,?)&#x27;)-&gt;execute([$uid,$type,$target,$start,$end]);
+    respond([&#x27;ok&#x27;=&gt;true,&#x27;id&#x27;=&gt;(int)db()-&gt;lastInsertId()]);
+}
+</code></pre></section><section id="file27"><h2>build.gradle.kts</h2><pre><code>plugins {
+    id(&quot;com.android.application&quot;) version &quot;8.9.2&quot; apply false
+    id(&quot;org.jetbrains.kotlin.android&quot;) version &quot;2.1.20&quot; apply false
+}
+</code></pre></section><section id="file28"><h2>settings.gradle.kts</h2><pre><code>pluginManagement { repositories { google(); mavenCentral(); gradlePluginPortal() } }
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories { google(); mavenCentral() }
+}
+rootProject.name = &quot;FitnessTracker&quot;
+include(&quot;:app&quot;)
+</code></pre></section></main></html>

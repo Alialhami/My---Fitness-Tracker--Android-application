@@ -1,0 +1,7 @@
+.gradle/
+**/build/
+local.properties
+.idea/
+backend/config.local.php
+*.jks
+.runtime/

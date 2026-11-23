@@ -1,0 +1,12 @@
+<resources>
+    <color name="green">#176B51</color><color name="ink">#182E27</color>
+    <color name="paper">#F6F8F3</color><color name="muted">#53675F</color>
+    <style name="Theme.FitnessTracker.Base" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/green</item><item name="colorPrimaryVariant">#104D3A</item>
+        <item name="colorSecondary">#BCE983</item><item name="colorOnSecondary">@color/ink</item>
+        <item name="android:fontFamily">sans</item><item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/paper</item><item name="android:navigationBarColor">@color/paper</item>
+        <item name="android:windowBackground">@color/paper</item><item name="android:colorAccent">@color/green</item>
+    </style>
+    <style name="Theme.FitnessTracker" parent="Theme.FitnessTracker.Base" />
+</resources>

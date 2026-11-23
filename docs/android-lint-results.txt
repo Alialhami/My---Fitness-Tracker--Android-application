@@ -1,0 +1,205 @@
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\Data.kt:27: Warning: Consider using apply() instead; commit writes its data to persistent storage immediately, whereas apply will handle it in the background [ApplySharedPref]
+    fun write(key: String, value: JSONArray) { prefs.edit().putString("${scope}_$key", value.toString()).commit() }
+                                                                                                         ~~~~~~~~
+
+   Explanation for issues of type "ApplySharedPref":
+   Consider using apply() instead of commit on shared preferences. Whereas
+   commit blocks and writes its data to persistent storage immediately, apply
+   will handle it in the background.
+
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\build.gradle.kts:23: Warning: A newer version of androidx.core:core-ktx than 1.15.0 is available: 1.19.1 [GradleDependency]
+    implementation("androidx.core:core-ktx:1.15.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\build.gradle.kts:24: Warning: A newer version of androidx.appcompat:appcompat than 1.7.0 is available: 1.8.0 [GradleDependency]
+    implementation("androidx.appcompat:appcompat:1.7.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\build.gradle.kts:25: Warning: A newer version of com.google.android.material:material than 1.12.0 is available: 1.14.0 [GradleDependency]
+    implementation("com.google.android.material:material:1.12.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\build.gradle.kts:26: Warning: A newer version of androidx.constraintlayout:constraintlayout than 2.2.1 is available: 2.2.2 [GradleDependency]
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\build.gradle.kts:29: Warning: A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0 [GradleDependency]
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "GradleDependency":
+   This detector looks for usages of libraries where the version you are using
+   is not the current stable release. Using older versions is fine, and there
+   are cases where you deliberately want to stick with an older version.
+   However, you may simply not be aware that a more recent version is
+   available, and that is what this lint check helps find.
+
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\AndroidManifest.xml:7: Warning: The attribute android:dataExtractionRules only applies for Android 12 and higher; since minSdkVersion is API 24 you should also set android:fullBackupContent [DataExtractionRules]
+    <application android:allowBackup="false" android:dataExtractionRules="@xml/data_extraction_rules" android:label="@string/app_name"
+                                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "DataExtractionRules":
+   Before Android 12, the attributes android:allowBackup and
+   android:fullBackupContent were used to configure all forms of backup,
+   including cloud backups, device-to-device transfers and adb backup.
+
+   In Android 12 and higher, these attributes have been deprecated and will
+   only apply to cloud backups. You should instead use the attribute
+   android:dataExtractionRules, specifying an @xml resource that configures
+   which files to back up, for cloud backups and for device-to-device
+   transfers, separately. If your minSdkVersion supports older versions,
+   you'll still want to specify an android:fullBackupContent resource if the
+   default behavior is not right for your app.
+
+   https://developer.android.com/about/versions/12/backup-restore#xml-changes
+   https://goo.gle/DataExtractionRules
+
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AuthActivity.kt:65: Warning: Use the KTX extension function String.toUri instead? [UseKtx]
+            val raw=address.text.toString().trim().trimEnd('/');val uri=Uri.parse(raw)
+                                                                        ~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\Data.kt:15: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        set(value) { prefs.edit().putString("server", value.trimEnd('/')).apply() }
+                     ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\Data.kt:18: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        set(value) { prefs.edit().putString("token", value).apply() }
+                     ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\Data.kt:22: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+        prefs.edit().putString("token", result.getString("token"))
+        ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\Data.kt:27: Warning: Use the KTX extension function SharedPreferences.edit instead? [UseKtx]
+    fun write(key: String, value: JSONArray) { prefs.edit().putString("${scope}_$key", value.toString()).commit() }
+                                               ~~~~~~~~~~~~
+
+   Explanation for issues of type "UseKtx":
+   The Android KTX libraries decorates the Android platform SDK as well as
+   various libraries with more convenient extension functions available from
+   Kotlin, allowing you to use default parameters, named parameters, and
+   more.
+
+   Available options:
+
+   **remove-defaults** (default is true):
+   Whether to skip arguments that match the defaults provided by the extension.
+
+   Extensions often provide default values for some of the parameters. For example:
+   ```kotlin
+   fun Path.readLines(charset: Charset = Charsets.UTF_8): List<String> { return Files.readAllLines(this, charset) }
+   ```
+   This lint check will by default automatically omit parameters that match the default, so if your code was calling ```kotlin
+   Files.readAllLines(file, Charset.UTF_8)
+   ```
+   lint would replace this with
+   ```kotlin
+   file.readLines()
+   ```
+   rather than
+   ```kotlin
+   file.readLines(Charset.UTF_8
+   ```
+   You can turn this behavior off using this option.
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="remove-defaults" value="true" />
+       </issue>
+   </lint>
+   ```
+
+   **require-present** (default is true):
+   Whether to only offer extensions already available.
+
+   This option lets you only have lint suggest extension replacements if those extensions are already available on the class path (in other words, you're already depending on the library containing the extension method.)
+
+   To configure this option, use a `lint.xml` file with an <option> like this:
+
+   ```xml
+   <lint>
+       <issue id="UseKtx">
+           <option name="require-present" value="true" />
+       </issue>
+   </lint>
+   ```
+
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:28: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        if(result.values.any {it})captureLocation() else locationLabel.text="Permission declined. You can still save your workout without a location."
+                                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:63: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d->date=LocalDate.of(y,m+1,d);dateButton.text="Workout date: $date"},date.year,date.monthValue-1,date.dayOfMonth).apply {datePicker.maxDate=System.currentTimeMillis()}.show()}
+                                                                                                                  ~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:63: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d->date=LocalDate.of(y,m+1,d);dateButton.text="Workout date: $date"},date.year,date.monthValue-1,date.dayOfMonth).apply {datePicker.maxDate=System.currentTimeMillis()}.show()}
+                                                                                                                   ~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:70: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        form.addView(button("Remove location") {lat=null;lon=null;locationLabel.text="No location attached. This is optional."})
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:99: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        locationLabel.text="Finding your location…"
+                            ~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:102: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+                if(location==null)locationLabel.text="Location unavailable. Check device location settings, then retry."
+                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:103: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+                else {lat=location.latitude;lon=location.longitude;locationLabel.text="Location attached: ${String.format(java.util.Locale.US,"%.5f, %.5f",lat,lon)} (accuracy ${location.accuracy.toInt()} m)"}
+                                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:103: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+                else {lat=location.latitude;lon=location.longitude;locationLabel.text="Location attached: ${String.format(java.util.Locale.US,"%.5f, %.5f",lat,lon)} (accuracy ${location.accuracy.toInt()} m)"}
+                                                                                       ~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:103: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+                else {lat=location.latitude;lon=location.longitude;locationLabel.text="Location attached: ${String.format(java.util.Locale.US,"%.5f, %.5f",lat,lon)} (accuracy ${location.accuracy.toInt()} m)"}
+                                                                                                                                                                    ~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AddWorkoutActivity.kt:104: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+            }.addOnFailureListener {locationLabel.text="Couldn't get a location. You can save without it."}
+                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\AuthActivity.kt:45: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+                    submit.isEnabled=false;error.text="Connecting…"
+                                                       ~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:30: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        findViewById<TextView>(R.id.greeting).text="Let's move, ${store.name.substringBefore(' ')}."
+                                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:30: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        findViewById<TextView>(R.id.greeting).text="Let's move, ${store.name.substringBefore(' ')}."
+                                                    ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:87: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        findViewById<TextView>(R.id.weeklyMinutes).text="${week.sumOf {it.getInt("duration")}} min"
+                                                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:87: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        findViewById<TextView>(R.id.weeklyMinutes).text="${week.sumOf {it.getInt("duration")}} min"
+                                                                                              ~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:89: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        findViewById<TextView>(R.id.weeklyDetail).text="${week.size} workouts  ·  ${String.format(Locale.US,"%.1f",km)} km recorded"
+                                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:89: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        findViewById<TextView>(R.id.weeklyDetail).text="${week.size} workouts  ·  ${String.format(Locale.US,"%.1f",km)} km recorded"
+                                                                    ~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:89: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        findViewById<TextView>(R.id.weeklyDetail).text="${week.size} workouts  ·  ${String.format(Locale.US,"%.1f",km)} km recorded"
+                                                                                                                       ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:159: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d->end=LocalDate.of(y,m+1,d);dateButton.text="Until $end"},end.year,end.monthValue-1,end.dayOfMonth).show()}
+                                                                                                                 ~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\MainActivity.kt:159: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        dateButton.setOnClickListener {DatePickerDialog(this,{_,y,m,d->end=LocalDate.of(y,m+1,d);dateButton.text="Until $end"},end.year,end.monthValue-1,end.dayOfMonth).show()}
+                                                                                                                  ~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\WorkoutAdapter.kt:22: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        holder.type.text=model.type;holder.duration.text="${model.duration} min"
+                                                         ~~~~~~~~~~~~~~~~~~~~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\WorkoutAdapter.kt:22: Warning: String literal in setText can not be translated. Use Android resources instead. [SetTextI18n]
+        holder.type.text=model.type;holder.duration.text="${model.duration} min"
+                                                                           ~~~~
+C:\Users\HP\Documents\Codex\2026-10-25\he\work\project\app\src\main\java\com\ncc\fitnesstracker\WorkoutAdapter.kt:24: Warning: Do not concatenate text displayed with setText. Use resource string with placeholders. [SetTextI18n]
+        holder.date.text="${model.date}  ·  ${if(row.optLong("id")==0L) "Pending sync" else "Saved"}${if(!row.isNull("latitude")) "  ·  Location attached" else ""}"
+                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+   Explanation for issues of type "SetTextI18n":
+   When calling TextView#setText
+   * Never call Number#toString() to format numbers; it will not handle
+   fraction separators and locale-specific digits properly. Consider using
+   String#format with proper format specifications (%d or %f) instead.
+   * Do not pass a string literal (e.g. "Hello") to display text. Hardcoded
+   text can not be properly translated to other languages. Consider using
+   Android resource strings instead.
+   * Do not build messages by concatenating text chunks. Such messages can not
+   be properly translated.
+
+   https://developer.android.com/guide/topics/resources/localization.html
+
+0 errors, 35 warnings

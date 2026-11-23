@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">Fitness Tracker</string>
+    <string name="brand">FITNESS TRACKER</string>
+    <string name="sign_out">Sign out</string>
+    <string name="your_activity">Your activity</string>
+    <string name="ready_status">Ready for your next session</string>
+    <string name="last_seven_days">YOUR LAST 7 DAYS</string>
+    <string name="zero_minutes">0 min</string>
+    <string name="start_today">Start with one workout today.</string>
+    <string name="recent_workouts">Recent workouts</string>
+    <string name="sync">Sync</string>
+    <string name="empty_history">Your story starts here.\nTap + to record your first workout.</string>
+    <string name="add_workout">Add workout</string>
+</resources>
